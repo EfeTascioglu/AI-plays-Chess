@@ -111,11 +111,7 @@ class ChessGame:
 		#INCOMPLETE
 		print("PROMOTION!")
 		
-	def attacked(self, position, team):
-		#INCOMPLETE
-		# Returns True if the Tile is in "Check"
-		#for piece in (self.positions[str(enemyTeam)] + self.positions[str(enemyTeam + 1)] + self.positions[str(enemyTeam) + 2] + self.positions[str(enemyTeam + 3)] + self.positions[str(enemyTeam) + 4] + self.positions[str(enemyTeam + 5)]) # For every enemy piece
-		
+	def attacked(self, position, team):		
 		# Attacked by KING
 		relevantPos = self.positions[str(team)][0] # king Position
 		if position[0] - 2 < relevantPos[0] < position[0] + 2 and position[1] - 2 < relevantPos[1] < position[1] + 2:
@@ -186,16 +182,16 @@ class ChessGame:
 				for move in moves:
 					consideredTile = (position[0] + move[0], position[1] + move[1])
 					if (0 <= consideredTile[0] <= 7) and (0 <= consideredTile[1] <= 7): # If in the board
-						if not(pieceTeamBonus <= int(self.grid[consideredTile[1]][consideredTile[0]]) < pieceTeamBonus + self.numPiecesPerTeam): # If tile is not ocupied by a team piece
+						if not(pieceTeamBonus <= int(self.grid[consideredTile[1]][consideredTile[0]]) < pieceTeamBonus + self.numPiecesPerTeam) and not(self.attacked((consideredTile[0], consideredTile[1]), 6 - pieceTeamBonus)): # If tile is not ocupied by a team piece, and isn't in check
 							positionsToGo.append((consideredTile[0], consideredTile[1]))
 				# Castling #INCOMPLETE: If not passing through check
 				if position in self.piecesUnmoved:
 					# Queenside
 					if ((0, position[1]) in self.piecesUnmoved): # If queenside rook unmoved
-						if self.grid[position[1]][1] == "-1" and self.grid[position[1]][2] == "-1" and self.grid[position[1]][3] == "-1" and not(self.attacked((2,position[1]), pieceTeamBonus)) and not(self.attacked((3,position[1]), pieceTeamBonus)) and not(self.attacked((4,position[1]), pieceTeamBonus)):
+						if self.grid[position[1]][1] == "-1" and self.grid[position[1]][2] == "-1" and self.grid[position[1]][3] == "-1" and not(self.attacked((2,position[1]), 6 - pieceTeamBonus)) and not(self.attacked((3,position[1]), 6 - pieceTeamBonus)) and not(self.attacked((4,position[1]), 6 - pieceTeamBonus)):
 							positionsToGo.append((position[0]-2, position[1]))
 					if (7, position[1]) in self.piecesUnmoved:
-						if self.grid[position[1]][6] == "-1" and self.grid[position[1]][5] == "-1" and not(self.attacked((6,position[1]), pieceTeamBonus)) and not(self.attacked((5,position[1]), pieceTeamBonus)) and not(self.attacked((4,position[1]), pieceTeamBonus)):
+						if self.grid[position[1]][6] == "-1" and self.grid[position[1]][5] == "-1" and not(self.attacked((6,position[1]), 6 - pieceTeamBonus)) and not(self.attacked((5,position[1]), 6 - pieceTeamBonus)) and not(self.attacked((4,position[1]), 6 - pieceTeamBonus)):
 							positionsToGo.append((position[0]+2, position[1]))
 				print("King", positionsToGo)
 				return positionsToGo
