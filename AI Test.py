@@ -91,7 +91,21 @@ class ChessGame:
 				promotion(positionAfter, int(piece) < self.numPiecesPerTeam) # where, which team
 	
 	def movePiece(self, positionBefore, positionAfter):
-		self.positionAfterMove(positionBefore, positionAfter)
+		piece = self.grid[positionBefore[1]][positionBefore[0]]
+		otherPiece = self.grid[positionAfter[1]][positionAfter[0]]
+		self.grid[positionBefore[1]][positionBefore[0]] = "-1"
+		self.grid[positionAfter[1]][positionAfter[0]] = piece
+		self.positions[piece].remove(positionBefore)
+		self.positions[piece].append(positionAfter)
+		if otherPiece != "-1":
+			self.positions[otherPiece].remove(positionAfter)
+		if positionBefore in self.piecesUnmoved:
+			self.piecesUnmoved.remove(positionBefore)
+		if positionAfter in self.piecesUnmoved:
+			self.piecesUnmoved.remove(positionAfter)
+		if piece in self.pawns:
+			if positionAfter[1] == 0 or positionAfter[1] == 7:
+				promotion(positionAfter, int(piece) < self.numPiecesPerTeam) # where, which team
 	
 	def promote(self, position, piece):
 		#INCOMPLETE
@@ -99,8 +113,48 @@ class ChessGame:
 		
 	def attacked(self, position, team):
 		#INCOMPLETE
-		print("THIS TILE MAY OR MAY NOT BE ATTACKED")
-		# It tells you if a certain tile is in check
+		# Returns True if the Tile is in "Check"
+		#for piece in (self.positions[str(enemyTeam)] + self.positions[str(enemyTeam + 1)] + self.positions[str(enemyTeam) + 2] + self.positions[str(enemyTeam + 3)] + self.positions[str(enemyTeam) + 4] + self.positions[str(enemyTeam + 5)]) # For every enemy piece
+		
+		# Attacked by KING
+		relevantPos = self.positions[str(team)][0] # king Position
+		if position[0] - 2 < relevantPos[0] < position[0] + 2 and position[1] - 2 < relevantPos[1] < position[1] + 2:
+			return True
+		# Attacked by PAWN
+		relevantPositions = self.positions[str(team + 5)] # Pawn positions
+		for relevantPos in relevantPositions: # Pawn positions
+			if (position[0] == relevantPos[0] - 1 or position[0] == relevantPos[0] +1): # Right x-cords
+				if team == 6: 													
+					if position[1] == relevantPos[1] - 1:
+						return True
+				else:
+					if position[1] == relevantPos[1] + 1:
+						return True
+		# NOTE: All the following do not "Check" a position if an allied piece is in it.
+		# Attacked by KNIGHTS
+		relevantPositions = self.positions[str(team + 4)] # Knight positions
+		for relevantPos in relevantPositions: # Knight positions
+			moves = self.pieceMoves(relevantPos)
+			if position in moves:
+				return True
+		# Attacked by BISHOPS
+		relevantPositions = self.positions[str(team + 3)] # Bishop positions
+		for relevantPos in relevantPositions: # Bishop positions
+			moves = self.pieceMoves(relevantPos)
+			if position in moves:
+				return True
+		# Attacked by ROOKS
+		relevantPositions = self.positions[str(team + 2)] # Rook positions
+		for relevantPos in relevantPositions: # Rook positions
+			moves = self.pieceMoves(relevantPos)
+			if position in moves:
+				return True
+		# Attacked by QUEENS
+		relevantPositions = self.positions[str(team + 1)] # Queen positions
+		for relevantPos in relevantPositions: # Queen positions
+			moves = self.pieceMoves(relevantPos)
+			if position in moves:
+				return True
 		return False
 	
 	def pieceMoves(self, position):
@@ -307,6 +361,15 @@ while True:
 						myDisplay.drawPieces(piecePositions)
 					else:
 						selected = False
+			
+			# Temporary check "Checks"
+			checkedTiles = []
+			for i in range(8):
+				for j in range (8):
+					checked = myBoard.attacked((i,j), 6)
+					if checked:
+						checkedTiles.append((i,j))
+			myDisplay.showPositions(checkedTiles, (255,0,0,50))
 			
 			lastTile = tilePressed
 			print("Selected:", selected)
